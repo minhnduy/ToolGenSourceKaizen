@@ -23,7 +23,7 @@ begin
 		#tableSelect
 	from
 		(
-			select replace(value,',','') as querySelectClause From string_split(@selectClause, '$')
+			select value as querySelectClause From string_split(@selectClause, ',')
 		) A
 	where querySelectClause <> '' and querySelectClause is not null
 
