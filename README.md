@@ -20,8 +20,12 @@ EX: TableA a Join TableB b On a.Field1 = b.Field1 AND a.Field2 = b.Field2
 ### Chưa hỗ trợ cho câu có kết kiểu OUTER APPLY  
 *Hiện tại chỉ đang hỗ trợ cho kiểu INNER JOIN, LEFT JOIN, RIGHT JOIN*  
 *Tool chạy bằng cơm sẽ làm bước này*  
-### Chưa hỗ trợ cho câu có kết nhiều table dạng SUB QUERY   
-EX: TableA a Join ( Select * From (Select a.Id From TableA a Left Join TableB b On a.Id=b.Id) Where...)   
+### Hiện tại chỉ hỗ trợ cho sub query tại From dưới dạng một Table duy nhất  
+EX:  
+  Dạng đang hỗ trợ:  
+    TableA a Join ( Select * From TableA Where...)   
+  Dạng chưa hỗ trợ  
+    TableA a Join ( Select * From (Select a.Id From TableA a Left Join TableB b On a.Id=b.Id) Where...)   
 *Tool chạy bằng cơm sẽ làm bước này*  
 ### Với những field sử dụng trong mệnh đề Where thì chưa hỗ trợ tự động thêm vào SubQuery trong mệnh đề From  
 *Tool chạy bằng cơm sẽ làm bước này*
