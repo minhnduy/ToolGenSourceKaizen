@@ -26,7 +26,7 @@ EX:
     TableA a Join ( Select * From TableA Where...)   
   Dạng chưa hỗ trợ  
     TableA a Join ( Select * From (Select a.Id From TableA a Left Join TableB b On a.Id=b.Id) Where...)   
-*Tool chạy bằng cơm sẽ làm bước này*  
+*Tool chạy bằng cơm sẽ làm dạng chưa hỗ trợ*  
 ### Với những field sử dụng trong mệnh đề Where thì chưa hỗ trợ tự động thêm vào SubQuery trong mệnh đề From  
 *Tool chạy bằng cơm sẽ làm bước này*
 
