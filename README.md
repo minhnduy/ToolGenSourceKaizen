@@ -15,3 +15,4 @@
 ##### Xóa bỏ ký tự Xuống dòng
 ## Các case chưa hỗ trợ có extracondition cho mệnh đề from  
 EX: TableA a Join TableB b On a.Field1 = b.Field1 AND a.Field2 = b.Field2
+##Test : run test.sql
