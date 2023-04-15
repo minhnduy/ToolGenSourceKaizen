@@ -18,7 +18,7 @@
 *Chưa tiến viết xong phần này*   
 EX: TableA a Join TableB b On a.Field1 = b.Field1 AND a.Field2 = b.Field2  
 ### Chưa hỗ trợ cho câu có kết kiểu OUTER APPLY  
-*Hiện tại chỉ đang hỗ trợ cho kiểu INNER JOIN, LEFT JOIN, RIGHT JOIN* 
+*Hiện tại chỉ đang hỗ trợ cho kiểu INNER JOIN, LEFT JOIN, RIGHT JOIN*  
 *Tool chạy bằng cơm sẽ làm bước này*  
 ### Chưa hỗ trợ cho câu có kết nhiều table dạng SUB QUERY   
 EX: TableA a Join ( Select * From (Select a.Id From TableA a Left Join TableB b On a.Id=b.Id) Where...)   
