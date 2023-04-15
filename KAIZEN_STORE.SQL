@@ -1,15 +1,8 @@
-USE [Test2]
-GO
-/****** Object:  StoredProcedure [dbo].[KAIZEN_STORE]    Script Date: 4/9/2023 3:25:19 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-ALTER   PROCEDURE [dbo].[KAIZEN_STORE](
+
+CREATE OR ALTER PROCEDURE [dbo].[KAIZEN_STORE](
 	@ClauseSelect nvarchar(max) = NULL,
 	@ClauseFrom nvarchar(max) = NULL,
-	@SpCode nvarchar(16) = 'TEST_STORE'
-		
+	@SpCode nvarchar(16) = 'TEST_STORE'		
 	)
 AS
 BEGIN

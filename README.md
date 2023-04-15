@@ -38,5 +38,15 @@ EX:
   5. EXECUTE file HANDLE_SELECT_CLAUSE_SUB.sql  
   6. EXECUTE file HANDLE_SELECT_CLAUSE.sql  
   7. EXECUTE file KAIZEN_STORE.sql  
-    
+  
+## Sử Dụng
+  EXEC [KAIZEN_STORE]  
+	@ClauseSelect = 'Mệnh đề Select sau khi chỉnh sửa như hướng dẫn ở trên',  
+	@ClauseFrom = 'Mệnh đề From sau khi chỉnh sửa như hướng dẫn ở trên',  
+	@SpCode = 'Tên Store'  
+
+#### Câu insert sinh ra sẽ có dạng như sau:  
+--	System_SP_Select       [SPCode], [TableName], [ColumnName], [ColumnAlias], [ColumnQuery]  
+--  System_sp_Tablelinks   [SPCode], [TableName], [TableAlias], [Order], [JointTable], [JointTableColumn], [LinkedTableColumn], [JointType], [ExtraConditions], [CustomQuery], [IsRequired]  
+
 ## Test : run test.sql
