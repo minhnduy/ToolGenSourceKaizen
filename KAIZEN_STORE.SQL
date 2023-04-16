@@ -122,15 +122,22 @@ BEGIN
 			close cur_join
 			deallocate cur_join
 		end 
+		
+		declare @tableColumnInSubQuery table (
+			TableAlias nvarchar(10),
+			ColumnName nvarchar(max)
+		)
+		insert into @tableColumnInSubQuery(TableAlias, ColumnName)
+		Select TableAlias, ColumnName From @tableSelect_1
 
 		-- xu ly them vao table select column
 		begin
 			-- truong hop table main
-			insert into @tableSelect_1 (TableAlias, ColumnName)
+			insert into @tableColumnInSubQuery (TableAlias, ColumnName)
 			select TableAlias , FieldJoin
 			from @tableFrom_1
 			-- truong hop la table link
-			insert into @tableSelect_1 (TableAlias, ColumnName)
+			insert into @tableColumnInSubQuery (TableAlias, ColumnName)
 			select fr2.TableAlias , fr1.LinkTableField
 			from @tableFrom_1 fr1
 			inner join @tableFrom_1 fr2 
@@ -235,7 +242,7 @@ BEGIN
 	
 				SELECT @resultSubString = STUFF(
 								(   SELECT ',' + CONVERT(NVARCHAR(20), ColumnName) 
-									FROM @tableColumn 
+									FROM @tableColumnInSubQuery 
 									WHERE TableAlias = @vTableAlias 
 									FOR xml path('')
 								)
