@@ -15,8 +15,16 @@
 ##### Xóa bỏ ký tự Xuống dòng  
 # Các case chưa hỗ trợ  
 ### Có extracondition cho mệnh đề from  
-*Chưa tiến viết xong phần này*   
-EX: TableA a Join TableB b On a.Field1 = b.Field1 AND a.Field2 = b.Field2  
+*Chưa tiến viết xong phần này*   ==> đã hỗ trọ case như sau  
+1. nếu có nhiều điều kiện dạng ON .(1). AND .(2). AND .(3). ...  
+=>  AND .(2). AND .(3). ...  sẽ tự convert thành extracondition  
+2. nếu có 2 điều kiện dạng ON .(1). AND .(2).  
+=> *2.1 nếu .(2). là điều kiện isdelete is null  
+  *2.1.1 TH đang là câu sub query sẽ loại bỏ điều kiện này  
+  *2.1.2 TH không phải trên thì thêm vào extraCondition bình thường  
+3. Trường hợp có nhiều hơn 2 'AND' trong condition thì sẽ bỏ trực tiếp vào extracondition không quan tâm có phải sub query hay không  
+4. *HIỆN TẠI CHỈ HỖ TRỌ CHO ĐIỀU KIỆN NỐ NHAU BẰNG CHỮ AND*
+
 ### Chưa hỗ trợ cho câu có kết kiểu OUTER APPLY  
 *Hiện tại chỉ đang hỗ trợ cho kiểu INNER JOIN, LEFT JOIN, RIGHT JOIN*  
 *Tool chạy bằng cơm sẽ làm bước này*  

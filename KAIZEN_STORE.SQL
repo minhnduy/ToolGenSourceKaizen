@@ -34,6 +34,7 @@ BEGIN
 				LinkTable nvarchar(max),
 				LinkTableField nvarchar(max),
 				FieldJoin nvarchar(max),
+				ExtraCondition nvarchar(max),
 				IndexJoin int,
 				QueryResult nvarchar(max)
 			)
@@ -122,6 +123,57 @@ BEGIN
 			close cur_join
 			deallocate cur_join
 		end 
+
+		-- xu ly extracondition
+		begin
+			declare @strExtraCondition nvarchar(max)= null
+			declare @strTbAlias nvarchar(50) = null
+			declare cur_extra_condition cursor for 
+			select TableAlias, Condition from @tableFrom_1 where Condition is not null and Condition <> ''
+
+			open cur_extra_condition;
+			fetch next from cur_extra_condition into @strTbAlias, @strExtraCondition
+			while @@FETCH_STATUS = 0
+			begin
+				declare @index_and int = 0, @strLen int = 0;
+				select @index_and = CHARINDEX(N' AND ', upper(@strExtraCondition));
+				if @index_and > 0 and len(@strExtraCondition) > 0
+				begin
+					declare @count_and int = 0
+					select @count_and = count(value) from string_split(SUBSTRING(@strExtraCondition, @index_and, len(@strExtraCondition)), ' ') where UPPER(value) = 'AND'
+
+					if @count_and > 1
+					begin						
+						update @tableFrom_1
+						set ExtraCondition = SUBSTRING(@strExtraCondition, @index_and, len(@strExtraCondition))
+						where TableAlias = @strTbAlias
+					end
+					else
+					begin
+						if @count_and = 1
+						begin
+							if UPPER(SUBSTRING(@strExtraCondition, @index_and, len(@strExtraCondition))) not like '%ISDELETE%'
+							begin
+								update @tableFrom_1
+								set ExtraCondition = SUBSTRING(@strExtraCondition, @index_and, len(@strExtraCondition))
+								where TableAlias = @strTbAlias
+							end
+							else
+							begin								
+								update @tableFrom_1
+								set ExtraCondition = SUBSTRING(@strExtraCondition, @index_and, len(@strExtraCondition))
+								where TableAlias = @strTbAlias
+								and SubQuery is null
+							end
+						end
+					end
+
+				end
+				fetch next from cur_extra_condition into @strTbAlias, @strExtraCondition
+			end
+			close cur_extra_condition
+			deallocate cur_extra_condition
+		end
 		
 		declare @tableColumnInSubQuery table (
 			TableAlias nvarchar(10),
@@ -311,9 +363,7 @@ BEGIN
 			update @tableSelect_2
 			set 
 				--INSERT INTO [dbo].[System_SP_SelectColumns]([SPCode], [TableName], [ColumnName], [ColumnAlias], [ColumnQuery])
-				--('TEST_STORE','','tempFormCompSalary  ','tempFormCompSalary  ',NULL)
-				--VALUES ('GET_TAMUSERPCPT','Att_TamScanLogRegister','*','',NULL)
-				QueryResult = CONCAT('(''',@SpCode,''',''',TableName,''',''',ColumnName,''',''',ColumnAlias,''',',(case when SubQuery is not null then concat('''',SubQuery,'''') else 'NULL' end),')')
+				QueryResult = CONCAT('(''',@SpCode,''',''',TableName,''',''',ColumnName,''',''',ColumnAlias,''',',(case when SubQuery is not null then concat('''',SubQuery,'''') else 'NULL' end),'),')
 		end
 
 		-- xu ly cau inert vao table system_sp_tablelinks
@@ -321,7 +371,6 @@ BEGIN
 			update @tableFrom_1
 			set 
 				--([SPCode], [TableName], [TableAlias], [Order], [JointTable], [JointTableColumn], [LinkedTableColumn], [JointType], [ExtraConditions], [CustomQuery], [IsRequired])	VALUES  
-				--('GET_TAMUSERPCPT','Att_TamScanLogRegister','at',0,NULL,NULL,NULL,NULL,NULL,NULL,1)
 				QueryResult = CONCAT('(''',@SpCode,''','''
 					,(case when fr.TableNameConvert is not null then fr.TableNameConvert else fr.TableName end),''','''
 					,fr.TableAlias,''','
@@ -332,7 +381,7 @@ BEGIN
 					,fr.JoinType,''','
 					,'NULL,'
 					,(case when fr.SubQuery is not null then concat('''',fr.SubQuery,'''') else 'NULL' end),','
-					,'NULL)')
+					,'NULL),')
 			from @tableFrom_1 fr
 		end
 
