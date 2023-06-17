@@ -1,7 +1,7 @@
 
 CREATE PROCEDURE [dbo].[hrm_att_sp_get_Overtime]
 			 @ProfileName nvarchar(100) = NULL,
-			 @CodeEmp nvarchar(max) = NULL, 
+			 @CodeEmp nvarchar(max) = NULL,
 			 @DateStart DATETIME = NULL,
 			 @DateEnd DATETIME = NULL,
 			 @OvertimeTypeId varchar(max) = NULL,
@@ -42,7 +42,7 @@ BEGIN
 	SET NOCOUNT ON;
 	--Prepair paramater
 	DECLARE @DefinePermission NVARCHAR(MAX) = N''
-		+ N' CREATE TABLE #tblPermission (id UNIQUEIDENTIFIER PRIMARY KEY ) 
+		+ N' CREATE TABLE #tblPermission (id UNIQUEIDENTIFIER PRIMARY KEY )
 			INSERT INTO #tblPermission EXEC Get_Data_Permission_New @Username, ''Att_Overtime'' '
 	DECLARE @DefineEnum NVARCHAR(MAX) = N''
 		+ N' SELECT * INTO #tblEnumStatusView FROM dbo.GetEnumValueNew (''OvertimeStatus'', @UserName)
@@ -53,7 +53,7 @@ BEGIN
 			 SELECT * INTO #tblRegisOvertimeType FROM dbo.GetEnumValueNew (''RegisOvertimeType'', @UserName)
 			 SELECT * INTO #tblEnumStatusComment FROM dbo.GetEnumValueNew (''StatusComment'', @UserName)
 			 SELECT * INTO #tblEnumStatusSendMailComment FROM dbo.GetEnumValueNew (''StatusComment'', @UserName)
-			 CREATE TABLE #tblCompanyID (Id UNIQUEIDENTIFIER PRIMARY KEY ) 
+			 CREATE TABLE #tblCompanyID (Id UNIQUEIDENTIFIER PRIMARY KEY )
 			if (@CompanyIDs is not null)
 				insert into #tblCompanyID select * from dbo.SPLIT_To_VARCHAR(@CompanyIDs)
 
@@ -93,7 +93,7 @@ BEGIN
 				SELECT orgId INTO #ProfileIDsFilter FROM GetOrgTableIds(ISNULL(@ProfileIDs, NULL))
 			 END
 			 '
-	-- Get AttGrade new 
+	-- Get AttGrade new
 	DECLARE @DefineAttGrade NVARCHAR(MAX) = ''
 	SET @DefineAttGrade = N'
 		SELECT ag.MonthStart,ag.MonthEnd,ag.ProfileID,ag.GradeAttendanceID, cg.GradeAttendanceName
@@ -109,14 +109,14 @@ BEGIN
 		)
 
 	'
-	
-	DECLARE @queryGrade NVARCHAR(MAX) = 
-	'SELECT ProfileID, GradeAttendanceName 
+
+	DECLARE @queryGrade NVARCHAR(MAX) =
+	'SELECT ProfileID, GradeAttendanceName
 		INTO #tblTempGradeResult
 		FROM sumary sm
 		WHERE rk = 1
 		'
-	
+
 	IF(@AttGradeID is not null)
 	BEGIN
 		SET @queryGrade = @queryGrade + ' AND GradeAttendanceID IN (SELECT orgId FROM #AttGradeFilter);'
@@ -200,7 +200,7 @@ BEGIN
 				LEFT JOIN "Sys_UserInfo" aopsu4 WITH (NOLOCK) ON aop."UserApproveID4" = aopsu4."ID" AND aopsu4."IsDelete" IS NULL
 				LEFT JOIN "Hre_Profile" aophp4 WITH (NOLOCK) ON aophp4.id = aopsu4.ProfileID AND aophp4."IsDelete" IS NULL
 
-				JOIN #tblPermission fcP ON fcP.Id = ao.ProfileID ' + CHAR(10)
+				JOIN #tblPermission fcP ON fcP.Id = ao.ProfileID` ' + CHAR(10)
 	--Mệnh đề WHERE
 	DECLARE @ClauseWhere NVARCHAR(MAX) = N' WHERE ' + CHAR(10)
 		+ N' ao.IsDelete IS NULL '
@@ -231,7 +231,7 @@ BEGIN
 			+ N' AND (ao.WorkDateConfirm <= @DateEndConfirm) '
 	IF @CodeEmp IS NOT NULL
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
-			+ N' AND ((LOWER(hp.CodeEmp) LIKE ''%'' + LOWER(@CodeEmp) + ''%'') 
+			+ N' AND ((LOWER(hp.CodeEmp) LIKE ''%'' + LOWER(@CodeEmp) + ''%'')
 				 OR (hp.CodeEmp IN (SELECT ID FROM SPLIT_To_VARCHAR(@CodeEmp))))'
 	IF @Status IS NOT NULL
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
@@ -262,7 +262,7 @@ BEGIN
 	ELSE
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
 		+ N' AND (ao.IsMealRegistration IS NOT NULL OR ao.IsMealRegistration IS NULL) '
-	
+
 	IF @CarRegisted = 'E_YES'
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
 			+ N' AND (ao.IsCarRegistration = 1) '
@@ -287,7 +287,7 @@ BEGIN
 	IF @MethodPayment IS NOT NULL
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
 			+ N' AND (ao.MethodPayment IN (SELECT ID FROM SPLIT_To_VARCHAR( @MethodPayment))) '
-	IF @UnitStructureID IS NOT NULL 
+	IF @UnitStructureID IS NOT NULL
 		SET @ClauseWhere = @ClauseWhere + CHAR(10)
 			+ N' AND (ao.UnitStructureID IN (SELECT orgId FROM #UnitStructureFilter))'
 	IF @IsExplanatory IS NOT NULL and @IsExplanatory = 1
@@ -346,7 +346,7 @@ BEGIN
 			ao."TaxType",
 			co."OvertimeTypeName",
 			co."Code" as "OvertimeTypeCode",
-			hp1."ProfileName" AS "UserApproveName1", 
+			hp1."ProfileName" AS "UserApproveName1",
 			hp2."ProfileName" AS "UserApproveName2",
 			hp3."ProfileName" AS "UserApproveName3",
 			hp5."ProfileName" AS "UserApproveName4",
@@ -493,14 +493,14 @@ BEGIN
 			aop.RegisterHours  AS RegisterHoursOTP,
 			aop.OvertimeHour AS OvertimeHourOTP,
 			mtpm2.EnumTranslate AS MethodPaymentOTP,
-			aophp1."ProfileName" AS "UserApproveNameOTP1", 
+			aophp1."ProfileName" AS "UserApproveNameOTP1",
 			aophp3."ProfileName" AS "UserApproveNameOTP2",
 			aophp4."ProfileName" AS "UserApproveNameOTP3",
 			aophp2."ProfileName" AS "UserApproveNameOTP4",
 			aop.ReasonOT AS ReasonOTP
 	'
 	+ @ClauseFromMain
-	+ @ClauseWhere +N' 
+	+ @ClauseWhere +N'
 
 	ORDER BY ao.DateUpdate DESC
 	OFFSET ((@PageIndex - 1) * (@PageSize)) ROWS FETCH NEXT @PageSize ROWS ONLY
@@ -523,10 +523,10 @@ BEGIN
 		DROP TABLE #JobtitleFilter
 	IF @PositionId IS NOT NULL
 		DROP TABLE #PositionFilter
-		
+
 	--IF @AttGradeID IS NOT NULL
 	--BEGIN
-		
+
 	--END
 	DROP TABLE #AttGradeFilter
 	DROP TABLE #tblTempGrade
@@ -537,7 +537,7 @@ BEGIN
 
 	DECLARE @ParamDefinition NVARCHAR(MAX) = N''
 		+ N' @ProfileName nvarchar(100) = NULL,
-			 @CodeEmp nvarchar(max) = NULL, 
+			 @CodeEmp nvarchar(max) = NULL,
 			 @DateStart DATETIME = NULL,
 			 @DateEnd DATETIME = NULL,
 			 @OvertimeTypeId varchar(max) = NULL,

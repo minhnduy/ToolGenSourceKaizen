@@ -2,7 +2,8 @@
 CREATE OR ALTER PROCEDURE [dbo].[KAIZEN_STORE](
 	@ClauseSelect nvarchar(max) = NULL,
 	@ClauseFrom nvarchar(max) = NULL,
-	@SpCode nvarchar(16) = 'TEST_STORE'		
+	@SpCode nvarchar(16) = 'TEST_STORE',
+	@CheckStore bit = 0
 	)
 AS
 BEGIN
@@ -10,7 +11,7 @@ BEGIN
 		-- xu ly 1 cau select
 		begin
 			declare @tableSelect_1 table(
-				TableAlias nvarchar(10),
+				TableAlias nvarchar(100),
 				TableName nvarchar(max),
 				ColumnName nvarchar(max),
 				ColumnAlias nvarchar(max),
@@ -176,7 +177,7 @@ BEGIN
 		end
 		
 		declare @tableColumnInSubQuery table (
-			TableAlias nvarchar(10),
+			TableAlias nvarchar(100),
 			ColumnName nvarchar(max)
 		)
 		insert into @tableColumnInSubQuery(TableAlias, ColumnName)
@@ -338,12 +339,42 @@ BEGIN
 			set IndexJoin = 4
 			where TableAlias 
 			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 3))
+
+			update @tableFrom_1
+			set IndexJoin = 5
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 4))
+
+			update @tableFrom_1
+			set IndexJoin = 6
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 5))
+
+			update @tableFrom_1
+			set IndexJoin = 7
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 6))
+
+			update @tableFrom_1
+			set IndexJoin = 8
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 7))
+
+			update @tableFrom_1
+			set IndexJoin = 9
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 8))
+
+			update @tableFrom_1
+			set IndexJoin = 10
+			where TableAlias 
+			in ( select TableAlias from @tableFrom_1 where LinkTable in (select case when TableNameConvert is not null then TableNameConvert else TableName end from @tableFrom_1 where IndexJoin = 9))
 		end
 
 		-- xu ly cau insert vao table System_SP_Select
 		begin
 			declare @tableSelect_2 table(
-				TableAlias nvarchar(10),
+				TableAlias nvarchar(100),
 				TableName nvarchar(max),
 				ColumnName nvarchar(max),
 				ColumnAlias nvarchar(max),
@@ -384,9 +415,36 @@ BEGIN
 					,'NULL),')
 			from @tableFrom_1 fr
 		end
+		
 
-		SELECT * FROM @tableFrom_1
-		SELECT * FROM @tableSelect_2
+		IF @CheckStore = 1
+		BEGIN
+			SELECT FR.*
+			FROM @tableFrom_1 FR
+			where NOT EXISTS
+				(	
+					SELECT 'dup' as A
+					FROM System_SP_TableLinks  db
+					WHERE SPCode = @SpCode
+					AND FR.TableAlias = db.TableAlias
+				)		
+			
+			SELECT SL.*
+			FROM @tableSelect_2 SL
+			where NOT EXISTS
+				(
+					SELECT 'dup' as A
+					FROM System_SP_SelectColumns db
+					WHERE SPCode = @SpCode
+					AND SL.ColumnAlias = db.ColumnAlias
+				)
+		END
+		ELSE
+		BEGIN
+			-- CASE TAO MOI STORE
+			SELECT * FROM @tableFrom_1
+			SELECT * FROM @tableSelect_2
+		END
 
 		print 'success'
 	END TRY
